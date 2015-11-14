@@ -32,6 +32,8 @@ public class Main extends HvlTemplateInteg2D {
 
 	@Override
 	public void initialize() {
+		getTextureLoader().loadResource("Logo");
+		
 		scenes = new ArrayList<Scene>();
 		
 		scenes.add(new ExplodingLogoScene());
@@ -43,10 +45,14 @@ public class Main extends HvlTemplateInteg2D {
 		prevNext = currNext;
 		currNext = Keyboard.isKeyDown(Keyboard.KEY_RIGHT);
 		
-		// Fade to next slide
+		// Fade to next slide (manual)
 		if (!currNext && prevNext)  {
 			fadeDir = -1;
 		}
+		
+		// Fade to next slide (auto)
+		if (scenes.get(currentScene).isDone())
+			fadeDir = -1;
 		
 		// Fade update
 		opacity += delta * fadeDir / fadeTime;
@@ -62,10 +68,14 @@ public class Main extends HvlTemplateInteg2D {
 			opacity = 0.0f;
 			fadeDir = 1;
 			currentScene++;
+			
+			// Scene wrap (once slideshow finishes, go to beginning)
+			if (currentScene >= scenes.size()) currentScene = 0;
+			
+			scenes.get(currentScene).initialize();
 		}
 		
-		// Scene wrap (once slideshow finishes, go to beginning)
-		if (currentScene >= scenes.size()) currentScene = 0;
+		scenes.get(currentScene).update(delta);
 		
 		// Draw the scene
 		scenes.get(currentScene).draw(delta, opacity);
